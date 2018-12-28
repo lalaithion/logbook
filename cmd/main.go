@@ -57,6 +57,15 @@ func main() {
 		}
 	}
 	fmt.Fprintf(os.Stderr, "Writing log entry for %s\n", today.ToYmd())
+
+	if _, err := os.Stat(c.LogPath); err != nil {
+		err := os.MkdirAll(c.LogPath, 0777)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Log path %s does not exist and could not be created\n", c.LogPath)
+			os.Exit(1)
+		}
+	}
+
 	todayPath := filepath.Join(c.LogPath, today.ToYmd()+".md")
 
 	if _, err := os.Stat(todayPath); err == nil {
