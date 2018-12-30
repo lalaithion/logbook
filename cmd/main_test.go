@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -124,9 +125,9 @@ It was important!
 	assertLogEntry(t, dir, today, "# Andrew Allen - "+today+`
 
 Reminders:
-From 2018-12-28: Tomorrow text
-From 2018-12-28: Tomorrow text
-From 2018-12-28: Tomorrow text
+From 2018-12-29: Tomorrow text
+From 2018-12-29: Tomorrow text
+From 2018-12-29: Tomorrow text
 
 `)
 }
@@ -141,6 +142,23 @@ func TestInvalidDateOverride(t *testing.T) {
 	want := "Invalid --date_override provided. parsing time \"2001-02-29\": day out of range"
 	if err == nil {
 		t.Errorf("Invocation succeeded when it shouldn't have: %v\nwant: %q\ngot:  %q", err, want, gotString)
+	}
+	if gotString != want {
+		t.Errorf("Inequal stderr/out:\nwant: %q\ngot:  %q", want, gotString)
+	}
+}
+
+func TestCreateLogDirectory(t *testing.T) {
+	dir, cleanup := makeFakeHome(t)
+	defer cleanup()
+	t.Logf("Dir: %s", dir)
+
+	got, err := helperCommand(t, dir, "--date_override=2000-01-01").CombinedOutput()
+	gotString := trim(string(got))
+	want := fmt.Sprintf("Writing log entry for 2000-01-01\nCreating %s/logbook\nWrote file", dir)
+
+	if err != nil {
+		t.Errorf("Invocation failed:\nerr: %s\noutput: %s\n", err.Error(), got)
 	}
 	if gotString != want {
 		t.Errorf("Inequal stderr/out:\nwant: %q\ngot:  %q", want, gotString)
